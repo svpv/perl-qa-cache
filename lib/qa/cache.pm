@@ -145,7 +145,7 @@ my $global_destruction;
 
 # execute the END when interrupted by a signal --
 # it is VERY important to release all locks and shut down gracefully
-use sigtrap qw(die normal-signals);
+use sigtrap qw(die untrapped normal-signals);
 
 our $expire = 33;
 
