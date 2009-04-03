@@ -147,6 +147,7 @@ my $global_destruction;
 # it is VERY important to release all locks and shut down gracefully
 use sigtrap qw(die untrapped normal-signals);
 
+# Purge entries that have not been accessed for that many days.
 our $expire = 33;
 
 sub DESTROY ($) {
@@ -164,17 +165,17 @@ sub DESTROY ($) {
 	while ($cur->c_get(my $k, my $v, DB_NEXT) == 0) {
 		next if $k eq "cleanup";
 		my ($m, $a, $vflags) = unpack "SSS", $v;
-		next if $a + 33 > $today;
-		next if $m + 33 > $today;
+		next if $a + $expire > $today;
+		next if $m + $expire > $today;
 		$cur->c_del();
 	}
+	$db->db_sync;
 	my $wanted = sub {
 		stat or return;
 		-f _ and -M _ > $expire and -A _ > $expire and unlink;
-		-d _ and rmdir;
 	};
 	require File::Find;
-	File::Find::finddepth($wanted, $dir);
+	File::Find::find($wanted, $dir);
 }
 
 END {
