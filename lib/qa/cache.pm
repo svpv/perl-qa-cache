@@ -85,7 +85,7 @@ sub STORE ($$$) {
 		rename "$file.$$", $file;
 	}
 	else {	# SSS: mtime, atime, vflags
-		$db->db_put($k, pack("SSS", $today, 0, $vflags) . $v);
+		$db->db_put($k, pack("SSS", $today, $today, $vflags) . $v);
 	}
 }
 
