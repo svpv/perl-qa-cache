@@ -53,8 +53,8 @@ use Compress::LZO qw(compress decompress);
 use Digest::SHA1 qw(sha1);
 
 use constant {
-	V_STO	=> 2**1,	# STO is Special Theory of Relativity
-	V_LZO	=> 2**2,	# LZO is real-time compressor
+	V_STO	=> 1<<1,	# STO is Special Theory of Relativity
+	V_LZO	=> 1<<2,	# LZO is real-time compressor
 };
 
 my $today = int($^T / 3600 / 24);
