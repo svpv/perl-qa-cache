@@ -1,6 +1,6 @@
 %define dist qa-cache
 Name: perl-%dist
-Version: 0.01
+Version: 0.02
 Release: alt1
 
 Summary: Simple and efficient cache for memoization
@@ -31,5 +31,9 @@ no description
 %perl_vendor_privlib/qa*
 
 %changelog
+* Sun Apr 05 2009 Alexey Tourbin <at@altlinux.ru> 0.02-alt1
+- qa/memoize.pm: implemented (basename,size,mtime) mode
+- qa/cache.pm: cleanup and better error handling
+
 * Mon Feb 16 2009 Alexey Tourbin <at@altlinux.ru> 0.01-alt1
 - initial release, based on Mar 2006 version

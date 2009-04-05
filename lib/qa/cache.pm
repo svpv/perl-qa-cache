@@ -1,8 +1,9 @@
 package qa::cache;
 
 use strict;
-use BerkeleyDB;
+our $VERSION = '0.02';
 
+use BerkeleyDB;
 our $topdir = "$ENV{HOME}/.qa-cache";
 my $topdir_fd;
 my $dbenv;

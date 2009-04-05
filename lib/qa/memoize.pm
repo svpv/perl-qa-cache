@@ -1,6 +1,8 @@
 package qa::memoize;
 
 use strict;
+our $VERSION = '0.02';
+
 our $NOCACHE ||= $ENV{QA_NOCACHE};
 
 use constant {
