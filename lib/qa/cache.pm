@@ -89,7 +89,8 @@ sub STORE ($$$) {
 			or die "$file.$$: $!";
 	}
 	else {	# SSS: mtime, atime, vflags
-		$db->db_put($k, pack("SSS", $today, $today, $vflags) . $v);
+		$db->db_put($k, pack("SSS", $today, $today, $vflags) . $v) == 0
+			or die $BerkeleyDB::Error;
 	}
 }
 
