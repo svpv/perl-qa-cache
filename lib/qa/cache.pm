@@ -78,11 +78,15 @@ sub STORE ($$$) {
 		$subdir = "$dir/$subdir";
 		$file = "$subdir/$file";
 		-d $subdir or mkdir $subdir;
-		open my $fh, ">", "$file.$$" or die $!;
-		syswrite $fh, pack("S", $vflags);
-		syswrite $fh, $v;
-		close $fh;
-		rename "$file.$$", $file;
+		open my $fh, ">", "$file.$$"
+			or die "$file.$$: $!";
+		local ($\, $,);
+		print $fh pack("S", $vflags), $v
+			or die "$file.$$: $!";
+		close $fh
+			or die "$file.$$: $!";
+		rename "$file.$$", $file
+			or die "$file.$$: $!";
 	}
 	else {	# SSS: mtime, atime, vflags
 		$db->db_put($k, pack("SSS", $today, $today, $vflags) . $v);
