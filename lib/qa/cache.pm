@@ -3,30 +3,24 @@ package qa::cache;
 use strict;
 our $VERSION = '0.02';
 
-use BerkeleyDB;
+use BerkeleyDB 0.34;
+die "db 4.4 required (got $BerkeleyDB::db_version)"
+	if $BerkeleyDB::db_version < 4.4;
+
 our $topdir = "$ENV{HOME}/.qa-cache";
-my $topdir_fd;
 my $dbenv;
 
 sub init_dbenv () {
-	use Fcntl qw(:flock O_DIRECTORY);
 	-d $topdir or mkdir $topdir;
-	sysopen $topdir_fd, $topdir, O_DIRECTORY or die "$topdir: $!";
-	if (flock $topdir_fd, LOCK_EX | LOCK_NB) {
-		$dbenv = BerkeleyDB::Env->new(-Home => $topdir,
-			-Verbose => 1, -ErrFile => *STDERR,
-			-Flags => DB_CREATE | DB_INIT_CDB | DB_INIT_MPOOL)
-				or die $BerkeleyDB::Error;
-		# TODO: drop all locks
-		flock $topdir_fd, LOCK_SH;
-	}
-	else {
-		flock $topdir_fd, LOCK_SH;
-		$dbenv = BerkeleyDB::Env->new(-Home => $topdir,
-			-Verbose => 1, -ErrFile => *STDERR,
-			-Flags => DB_JOINENV)
-				or die $BerkeleyDB::Error;
-	}
+	my %args = (
+		-Home => $topdir,
+		-Flags => DB_CREATE | DB_INIT_CDB | DB_INIT_MPOOL,
+		-ErrFile => *STDERR, -ErrPrefix => __PACKAGE__,
+		-ThreadCount => 16);
+	$dbenv = BerkeleyDB::Env->new(%args)
+		or die $BerkeleyDB::Error;
+	$dbenv->set_isalive == 0 and $dbenv->failchk == 0
+		or die $BerkeleyDB::Error;
 }
 
 my %blessed;
@@ -38,9 +32,12 @@ sub TIEHASH ($$) {
 	init_dbenv() unless $dbenv;
 	my $dir = "$topdir/$id";
 	-d $dir or mkdir $dir;
-	my $db = BerkeleyDB::Hash->new(-Filename => "$id/cache.db",
-		-Env => $dbenv, -Flags => DB_CREATE)
-			or die $BerkeleyDB::Error;
+	my %args = (
+		-Env => $dbenv,
+		-Filename => "$id/cache.db",
+		-Flags => DB_CREATE);
+	my $db = BerkeleyDB::Hash->new(%args)
+		or die $BerkeleyDB::Error;
 	$pagesize ||= $db->db_stat->{hash_pagesize};
 	my $self = bless [ $dir, $db ] => $class;
 	$blessed{$id} = $self;
