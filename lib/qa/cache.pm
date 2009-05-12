@@ -143,9 +143,6 @@ sub DELETE ($$) {
 	unlink $file;
 }
 
-# BerkeleyDB cleans up at the END, so do I
-my $global_destruction;
-
 # execute the END when interrupted by a signal --
 # it is VERY important to release all locks and shut down gracefully
 use sigtrap qw(die untrapped normal-signals);
@@ -153,8 +150,7 @@ use sigtrap qw(die untrapped normal-signals);
 # Purge entries that have not been accessed for that many days.
 our $expire = 33;
 
-sub DESTROY ($) {
-	return if $global_destruction;
+sub autoclean ($) {
 	my $self = shift;
 	my ($dir, $db) = @$self;
 	my $cur = $db->_db_write_cursor() or return;
@@ -181,14 +177,27 @@ sub DESTROY ($) {
 	File::Find::find($wanted, $dir);
 }
 
+# Note that this END block is executed right before BerkeleyDB END block,
+# which will force BerkeleyDB shutdown.  This seems to be the right place
+# to attempt cleanup and release resources.
 END {
 	undef $dbenv;
 	while (my ($id, $self) = each %blessed) {
-		next unless $self;
-		$self->DESTROY();
+		next unless $self and @$self;
+		# do not cleanup on abnormal exit
+		$self->autoclean if $? == 0;
 		undef @$self;
 	}
-	$global_destruction = 1;
+}
+
+# It seems that DESTROY gets called after END, which is good for us,
+# because END provides a chance to cancel cleanup on abnormal exit.
+# However, we should not rely on this behaviour.
+sub DESTROY {
+	my $self = shift;
+	return unless $self and @$self;
+	$self->autoclean;
+	undef @$self;
 }
 
 1;
