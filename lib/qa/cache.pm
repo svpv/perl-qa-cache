@@ -190,9 +190,11 @@ END {
 	}
 }
 
-# It seems that DESTROY gets called after END, which is good for us,
-# because END provides a chance to cancel cleanup on abnormal exit.
-# However, we should not rely on this behaviour.
+# When the cache object is referenced by a lexical variable, DESTROY usually
+# happens before the END block.  However, it is possible that DESTROY actually
+# gets called after the END block (e.g., in qa::memoize module, the cache
+# object is stored in CV pad).  Note that END before DESTROY provides a chance
+# to cancel cleanup on abnormal exit.
 sub DESTROY {
 	my $self = shift;
 	return unless $self and @$self;
