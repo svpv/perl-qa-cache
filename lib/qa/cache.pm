@@ -72,6 +72,9 @@ sub STORE ($$$) {
 	}
 	my ($dir, $db) = @$self;
 	if (length($v) > $pagesize / 2) {
+		# Big cache entries are stored under $dir.
+		# To improve cache capacity, we use two leading hex digits
+		# for subdir.  The same technique is used in git(1).
 		my ($subdir, $file) = unpack "H2H*", $k;
 		$subdir = "$dir/$subdir";
 		$file = "$subdir/$file";
@@ -79,14 +82,20 @@ sub STORE ($$$) {
 		open my $fh, ">", "$file.$$"
 			or die "$file.$$: $!";
 		local ($\, $,);
+		# File format: vflags, data.
 		print $fh pack("S", $vflags), $v
 			or die "$file.$$: $!";
 		close $fh
 			or die "$file.$$: $!";
+		# Note that rename is atomic.  By using temporary file,
+		# we try to avoid simultaneous writes.  And by using rename,
+		# we try to avoid partially written files.
 		rename "$file.$$", $file
 			or die "$file.$$: $!";
 	}
-	else {	# SSS: mtime, atime, vflags
+	else {
+		# Small cache entries are stored in $db.
+		# Data format: mtime, atime, vflags, data.
 		$db->db_put($k, pack("SSS", $today, $today, $vflags) . $v) == 0
 			or die $BerkeleyDB::Error;
 	}
