@@ -153,28 +153,59 @@ our $expire = 33;
 sub autoclean ($) {
 	my $self = shift;
 	my ($dir, $db) = @$self;
-	my $cur = $db->_db_write_cursor() or return;
-	if ($db->db_get("cleanup", my $cleanup) != 0) {
-		$db->db_put("cleanup", $today);
-		return;
+
+	# Check if cleanup is needed.
+	# Cleanup is performed on a daily basis.
+	my $need_cleanup;
+	{
+		# Cleanup date must be checked and updated atomically -
+		# otherwise, we end up running two simultaneous cleanups.
+		# For this reason, we need to obtain a write cursor.
+		my $cur = $db->_db_write_cursor;
+		# Note that we use SHA1 keys for user data, so it is not
+		# a problem to use shorter text keys for our special purpose.
+		if ($db->db_get("cleanup", my $cleanup) != 0) {
+			# First-time cleanup: store the date and do nothing.
+			$db->db_put("cleanup", $today);
+		}
+		elsif ($cleanup != $today) {
+			# Store the date and proceed with cleanup.
+			$db->db_put("cleanup", $today);
+			$need_cleanup = 1;
+		}
 	}
-	elsif ($cleanup == $today) {
-		return;
+	return unless $need_cleanup;
+
+	# Cleanup $db.
+	{
+		# To traverse the cache, we obtain only a read cursor,
+		# so that graceful recovery is possible.
+		my $cur = $db->db_cursor;
+		while ($cur->c_get(my $k, my $v, DB_NEXT) == 0) {
+			# Due to SHA1, user keys are 20 bytes long.
+			# This provides an easy way to skip our "cleanup" key.
+			next unless length($k) == 20;
+			my ($m, $a, $vflags) = unpack "SSS", $v;
+			next if $a + $expire > $today;
+			next if $m + $expire > $today;
+			$db->db_del($k);
+		}
 	}
-	while ($cur->c_get(my $k, my $v, DB_NEXT) == 0) {
-		next if $k eq "cleanup";
-		my ($m, $a, $vflags) = unpack "SSS", $v;
-		next if $a + $expire > $today;
-		next if $m + $expire > $today;
-		$cur->c_del();
+
+	# Cleanup $dir.
+	{
+		my $wanted = sub {
+			# We remove only files with user data, and also
+			# temporary files with .$$ suffix created before atomic
+			# rename.  Due to SHA1 naming, files with user data are
+			# 38 bytes long.  This provides an easy way to skip
+			# cache.db and environment files.
+			length >= 38 and lstat and -f _ or return;
+			-M _ > $expire and -A _ > $expire and unlink;
+		};
+		require File::Find;
+		File::Find::find($wanted, $dir);
 	}
-	$db->db_sync;
-	my $wanted = sub {
-		stat or return;
-		-f _ and -M _ > $expire and -A _ > $expire and unlink;
-	};
-	require File::Find;
-	File::Find::find($wanted, $dir);
 }
 
 # Note that this END block is executed right before BerkeleyDB END block,
