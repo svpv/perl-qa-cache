@@ -52,6 +52,28 @@ sub TIEHASH ($$) {
 	return $self;
 }
 
+# In DB_INIT_CDB mode, internal locks are obtained automatically for each
+# databse access.  Since write locks cannot be recovered, we need to block
+# signals for critical ops like db_put.
+{
+	use POSIX qw(sigprocmask SIG_BLOCK SIG_SETMASK);
+
+	my $sigset_all = POSIX::SigSet->new;
+	$sigset_all->fillset;
+
+	my $sigset_old = POSIX::SigSet->new;
+
+	sub block_signals () {
+		defined sigprocmask(SIG_BLOCK, $sigset_all, $sigset_old)
+			or die "cannot block signals: $!";
+	}
+
+	sub unblock_signals () {
+		defined sigprocmask(SIG_SETMASK, $sigset_old)
+			or die "cannot unblock signals: $!";
+	}
+}
+
 use Storable qw(freeze thaw);
 use Compress::LZO qw(compress decompress);
 use Digest::SHA1 qw(sha1);
