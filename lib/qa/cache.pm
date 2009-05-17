@@ -19,6 +19,12 @@ sub init_dbenv () {
 		-ThreadCount => 16);
 	$dbenv = BerkeleyDB::Env->new(%args)
 		or die $BerkeleyDB::Error;
+	# This will remove stale read locks.  Stale write locks cannot be
+	# recovered automatically, since it is likely that database was left
+	# in inconsistent state.  Thus, one has to remove the entire cache
+	# manually.  Otherwise, at the risk of corrupted data, one may try
+	# to remove the environment:
+	#	rm ~/.qa-cache/__db*
 	$dbenv->set_isalive == 0 and $dbenv->failchk == 0
 		or die $BerkeleyDB::Error;
 }
