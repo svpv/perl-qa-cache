@@ -203,6 +203,7 @@ sub autoclean ($) {
 	# Cleanup is performed on a daily basis.
 	my $need_cleanup;
 	{
+		block_signals;
 		# Cleanup date must be checked and updated atomically -
 		# otherwise, we end up running two simultaneous cleanups.
 		# For this reason, we need to obtain a write cursor.
@@ -218,6 +219,7 @@ sub autoclean ($) {
 			$db->db_put("cleanup", $today);
 			$need_cleanup = 1;
 		}
+		unblock_signals;
 	}
 	return unless $need_cleanup;
 
@@ -233,7 +235,9 @@ sub autoclean ($) {
 			my ($m, $a, $vflags) = unpack "SSS", $v;
 			next if $a + $expire > $today;
 			next if $m + $expire > $today;
+			block_signals;
 			$db->db_del($k);
+			unblock_signals;
 		}
 	}
 
