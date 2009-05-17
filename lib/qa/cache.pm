@@ -188,10 +188,6 @@ sub DELETE ($$) {
 	unlink $file;
 }
 
-# execute the END when interrupted by a signal --
-# it is VERY important to release all locks and shut down gracefully
-use sigtrap qw(die untrapped normal-signals);
-
 # Purge entries that have not been accessed for that many days.
 our $expire = 33;
 
