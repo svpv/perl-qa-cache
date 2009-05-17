@@ -123,9 +123,12 @@ sub STORE ($$$) {
 	}
 	else {
 		# Small cache entries are stored in $db.
+		block_signals;
 		# Data format: mtime, atime, vflags, data.
-		$db->db_put($k, pack("SSS", $today, $today, $vflags) . $v) == 0
-			or die $BerkeleyDB::Error;
+		my $rc = $db->db_put($k, pack("SSS", $today, $today, $vflags) . $v);
+		unblock_signals;
+		die "db_put: $BerkeleyDB::Error"
+			unless $rc == 0;
 	}
 }
 
@@ -138,8 +141,13 @@ sub FETCH ($$) {
 	if ($db->db_get($k, $v) == 0) {
 		(my $m, my $a, $vflags) = unpack "SSS", $v;
 		substr $v, 0, 6, "";
-		$db->db_put($k, pack("SSS", $m, $today, $vflags) . $v)
-			if $a != $today; # XXX not atomic
+		if ($a != $today) {
+			block_signals;
+			# We check errors only on first-time STORE.
+			# After all, what they request here is only a FETCH.
+			$db->db_put($k, pack("SSS", $m, $today, $vflags) . $v);
+			unblock_signals;
+		}
 	}
 	else {
 		my ($subdir, $file) = unpack "H2H*", $k;
