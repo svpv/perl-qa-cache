@@ -1,6 +1,6 @@
 %define dist qa-cache
 Name: perl-%dist
-Version: 0.02
+Version: 0.03
 Release: alt1
 
 Summary: Simple and efficient cache for memoization
@@ -12,7 +12,7 @@ Source: %dist-%version.tar
 
 BuildArch: noarch
 
-# Automatically added by buildreq on Mon Feb 16 2009 (-bi)
+# Automatically added by buildreq on Fri May 22 2009 (-bi)
 BuildRequires: perl-BerkeleyDB perl-Compress-LZO perl-Digest-SHA1 perl-Storable perl-devel
 
 %description
@@ -31,6 +31,11 @@ no description
 %perl_vendor_privlib/qa*
 
 %changelog
+* Fri May 22 2009 Alexey Tourbin <at@altlinux.ru> 0.03-alt1
+- qa/cache.pm: updated BerkeleyDB code
+  + enabled automatic recovery for stale read locks
+  + reimplemented signal handling for write ops
+
 * Sun Apr 05 2009 Alexey Tourbin <at@altlinux.ru> 0.02-alt1
 - qa/memoize.pm: implemented (basename,size,mtime) mode
 - qa/cache.pm: cleanup and better error handling

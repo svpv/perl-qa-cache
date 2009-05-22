@@ -1,7 +1,7 @@
 package qa::cache;
 
 use strict;
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 use BerkeleyDB 0.34;
 die "db 4.4 required (got $BerkeleyDB::db_version)"
