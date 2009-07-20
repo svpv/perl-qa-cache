@@ -1,6 +1,6 @@
 %define dist qa-cache
 Name: perl-%dist
-Version: 0.03
+Version: 0.04
 Release: alt1
 
 Summary: Simple and efficient cache for memoization
@@ -31,6 +31,9 @@ no description
 %perl_vendor_privlib/qa*
 
 %changelog
+* Mon Jul 20 2009 Alexey Tourbin <at@altlinux.ru> 0.04-alt1
+- qa/cache.pm: serialize dbenv open by locking topdir fd
+
 * Fri May 22 2009 Alexey Tourbin <at@altlinux.ru> 0.03-alt1
 - qa/cache.pm: updated BerkeleyDB code
   + enabled automatic recovery for stale read locks
