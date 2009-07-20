@@ -12,6 +12,13 @@ my $dbenv;
 
 sub init_dbenv () {
 	-d $topdir or mkdir $topdir;
+	# Serialize dbenv open by locking topdir fd.
+	# Note that the fd will be autoclosed.
+	use Fcntl qw(O_RDONLY O_DIRECTORY LOCK_EX);
+	sysopen my $fd, $topdir, O_RDONLY | O_DIRECTORY
+		or die "$topdir: $!";
+	flock $fd, LOCK_EX
+		or die "$topdir: $!";
 	my %args = (
 		-Home => $topdir,
 		-Flags => DB_CREATE | DB_INIT_CDB | DB_INIT_MPOOL,
