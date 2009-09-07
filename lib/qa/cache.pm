@@ -3,7 +3,7 @@ package qa::cache;
 use strict;
 our $VERSION = '0.04';
 
-use BerkeleyDB 0.34;
+use BerkeleyDB 0.39;
 die "db 4.4 required (got $BerkeleyDB::db_version)"
 	if $BerkeleyDB::db_version < 4.4;
 
@@ -23,6 +23,7 @@ sub init_dbenv () {
 		-Home => $topdir,
 		-Flags => DB_CREATE | DB_INIT_CDB | DB_INIT_MPOOL,
 		-ErrFile => *STDERR, -ErrPrefix => __PACKAGE__,
+		-MsgFile => \*STDERR, # rt.cpan.org #46313
 		-ThreadCount => 16);
 	$dbenv = BerkeleyDB::Env->new(%args)
 		or die $BerkeleyDB::Error;
