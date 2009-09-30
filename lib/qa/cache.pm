@@ -135,7 +135,7 @@ sub STORE ($$$) {
 		# Data format: mtime, atime, vflags, data.
 		my $rc = $db->db_put($k, pack("SSS", $today, $today, $vflags) . $v);
 		unblock_signals;
-		die "db_put: $rc"
+		warn "db_put: $rc"
 			unless $rc == 0;
 	}
 }
