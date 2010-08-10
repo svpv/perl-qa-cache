@@ -84,7 +84,7 @@ sub TIEHASH ($$) {
 
 use Storable qw(freeze thaw);
 use Compress::LZO qw(compress decompress);
-use Digest::SHA1 qw(sha1);
+use Digest::SHA1 2.13 qw(sha1);
 
 use constant {
 	V_STO	=> 1<<1,	# STO is Special Theory of Relativity
