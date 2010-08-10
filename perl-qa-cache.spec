@@ -1,6 +1,6 @@
 %define dist qa-cache
 Name: perl-%dist
-Version: 0.05
+Version: 0.06
 Release: alt1
 
 Summary: Simple and efficient cache for memoization
@@ -31,6 +31,11 @@ no description
 %perl_vendor_privlib/qa*
 
 %changelog
+* Tue Aug 10 2010 Alexey Tourbin <at@altlinux.ru> 0.06-alt1
+- qa/cache.pm: set -MsgFile => \*STDERR
+- qa/cache.pm: downgrade db_put error to a warning
+- qa/cache.pm: require non-leaking Digest::SHA1 2.13
+
 * Mon Aug 17 2009 Alexey Tourbin <at@altlinux.ru> 0.05-alt1
 - qa/cache.pm: better diagnostics on db_put failure
 
