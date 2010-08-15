@@ -107,7 +107,7 @@ sub STORE ($$$) {
 		$vflags |= V_LZO;
 	}
 	my ($dir, $db) = @$self;
-	if (length($v) > $pagesize / 2) {
+	if (length($v) > ($pagesize >> 1) + ($pagesize >> 2)) {
 		# Big cache entries are stored under $dir.
 		# To improve cache capacity, we use two leading hex digits
 		# for subdir.  The same technique is used in git(1).
