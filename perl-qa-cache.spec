@@ -1,6 +1,6 @@
 %define dist qa-cache
 Name: perl-%dist
-Version: 0.07
+Version: 0.08
 Release: alt1
 
 Summary: Simple and efficient cache for memoization
@@ -12,7 +12,7 @@ Source: %dist-%version.tar
 
 BuildArch: noarch
 
-# Automatically added by buildreq on Fri May 22 2009 (-bi)
+# Automatically added by buildreq on Tue Dec 21 2010 (-bi)
 BuildRequires: perl-BerkeleyDB perl-Compress-LZO perl-Digest-SHA1 perl-Storable perl-devel
 
 %description
@@ -31,6 +31,9 @@ no description
 %perl_vendor_privlib/qa*
 
 %changelog
+* Tue Dec 21 2010 Alexey Tourbin <at@altlinux.ru> 0.08-alt1
+- qa/cache.pm: further increased db/fs threshold size up to 64K
+
 * Sun Aug 15 2010 Alexey Tourbin <at@altlinux.ru> 0.07-alt1
 - qa/cache.pm: increase db/fs theshold size (1/2 -> 3/4 pagesize)
 
