@@ -1,0 +1,2 @@
+TYPEMAP
+qa::cache	T_PTROBJ
