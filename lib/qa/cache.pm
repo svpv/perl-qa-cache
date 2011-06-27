@@ -48,6 +48,12 @@ sub FETCH ($$) {
 	return $v;
 }
 
+sub EXISTS ($$) {
+	my ($self, $k) = @_;
+	$k = freeze($k) if ref($k);
+	return $self->raw_exists($k);
+}
+
 sub DESTROY {
 	my $self = shift;
 	$self->raw_close;

@@ -29,7 +29,7 @@ raw_exists(cache, key)
 	STRLEN ksize;
 	const void *kdata = SvPV(key, ksize);
 	if (!cache_get(cache, kdata, ksize, NULL, NULL))
-	    XSRETURN_UNDEF;
+	    XSRETURN_NO;
 	XSRETURN_YES;
 
 SV *
