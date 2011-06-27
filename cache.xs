@@ -27,7 +27,7 @@ raw_exists(cache, key)
 	SV * key
     CODE:
 	STRLEN ksize;
-	const void *kdata = SvPV(key, ksize);
+	const void *kdata = SvPVbyte(key, ksize);
 	if (!cache_get(cache, kdata, ksize, NULL, NULL))
 	    XSRETURN_NO;
 	XSRETURN_YES;
@@ -38,7 +38,7 @@ raw_get(cache, key)
 	SV * key
     CODE:
 	STRLEN ksize;
-	const void *kdata = SvPV(key, ksize);
+	const void *kdata = SvPVbyte(key, ksize);
 	int vsize;
 	void *vdata;
 	if (!cache_get(cache, kdata, ksize, &vdata, &vsize))
@@ -57,6 +57,6 @@ raw_put(cache, key, val)
 	SV * val
     CODE:
 	STRLEN ksize, vsize;
-	const void *kdata = SvPV(key, ksize);
-	const void *vdata = SvPV(val, vsize);
+	const void *kdata = SvPVbyte(key, ksize);
+	const void *vdata = SvPVbyte(val, vsize);
 	cache_put(cache, kdata, ksize, vdata, vsize);
