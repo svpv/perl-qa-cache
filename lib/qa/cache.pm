@@ -14,9 +14,12 @@ sub TIEHASH ($$) {
 	my ($class, $id) = @_;
 	return $blessed{$id} if $blessed{$id};
 	my $dir = "$topdir/$id";
-	-d $dir or mkdir $dir;
+	use constant EEXIST => 17; # since v7
+	mkdir $_ and warn "created directory $_"
+		or $! == EEXIST or warn "$_: $!"
+			for $topdir, $dir;
 	my $self = $class->raw_open($dir)
-		or die "cannot open cache";
+		or die "cannot open cache in $dir";
 	$blessed{$id} = $self;
 	use Scalar::Util qw(weaken);
 	weaken $blessed{$id};
