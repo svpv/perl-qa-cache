@@ -1,6 +1,6 @@
 %define dist qa-cache
 Name: perl-%dist
-Version: 0.08
+Version: 0.10
 Release: alt1
 
 Summary: Simple and efficient cache for memoization
@@ -10,10 +10,8 @@ Group: Development/Perl
 URL: %CPAN %dist
 Source: %dist-%version.tar
 
-BuildArch: noarch
-
-# Automatically added by buildreq on Tue Dec 21 2010 (-bi)
-BuildRequires: perl-BerkeleyDB perl-Compress-LZO perl-Digest-SHA1 perl-Storable perl-devel
+# Automatically added by buildreq on Wed Sep 07 2011 (-bi)
+BuildRequires: libdb4-devel libqacache-devel perl-devel
 
 %description
 no description
@@ -28,9 +26,14 @@ no description
 %perl_vendor_install
 
 %files
-%perl_vendor_privlib/qa*
+%perl_vendor_archlib/qa*
+%perl_vendor_autolib/qa*
 
 %changelog
+* Wed Sep 07 2011 Alexey Tourbin <at@altlinux.ru> 0.10-alt1
+- reimplemented using libqacache library - new cache format not
+  compatible with earlier releases, ~/.qa-cache must be removed
+
 * Tue Dec 21 2010 Alexey Tourbin <at@altlinux.ru> 0.08-alt1
 - qa/cache.pm: further increased db/fs threshold size up to 64K
 
