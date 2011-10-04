@@ -1,7 +1,7 @@
 package qa::cache;
 
 use strict;
-our $VERSION = '0.04';
+our $VERSION = '0.11';
 
 require XSLoader;
 XSLoader::load(__PACKAGE__, $VERSION);

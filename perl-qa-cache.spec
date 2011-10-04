@@ -1,6 +1,6 @@
 %define dist qa-cache
 Name: perl-%dist
-Version: 0.10
+Version: 0.11
 Release: alt1
 
 Summary: Simple and efficient cache for memoization
@@ -10,11 +10,12 @@ Group: Development/Perl
 URL: %CPAN %dist
 Source: %dist-%version.tar
 
-# Automatically added by buildreq on Wed Sep 07 2011 (-bi)
-BuildRequires: libdb4-devel libqacache-devel perl-devel
+# Automatically added by buildreq on Wed Oct 05 2011
+BuildRequires: libqacache-devel perl-devel
 
 %description
-no description
+qa::cache module provides Perl interface to libqacache library.
+qa::memoize implements caching for file processing routines.
 
 %prep
 %setup -q -n %dist-%version
@@ -26,10 +27,13 @@ no description
 %perl_vendor_install
 
 %files
-%perl_vendor_archlib/qa*
-%perl_vendor_autolib/qa*
+%perl_vendor_archlib/qa
+%perl_vendor_autolib/qa
 
 %changelog
+* Wed Oct 05 2011 Alexey Tourbin <at@altlinux.ru> 0.11-alt1
+- qa/cache.pm: added clean() method
+
 * Wed Sep 07 2011 Alexey Tourbin <at@altlinux.ru> 0.10-alt1
 - reimplemented using libqacache library - new cache format not
   compatible with earlier releases, ~/.qa-cache must be removed
