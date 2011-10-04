@@ -63,3 +63,10 @@ raw_put(cache, key, val)
 	const void *kdata = SvPVbyte(key, ksize);
 	const void *vdata = SvPVbyte(val, vsize);
 	cache_put(cache, kdata, ksize, vdata, vsize);
+
+void
+raw_clean(cache, days)
+	qa::cache cache
+	int days
+    CODE:
+	cache_clean(cache, days);

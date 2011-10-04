@@ -62,4 +62,9 @@ sub DESTROY {
 	$self->raw_close;
 }
 
+sub clean {
+	my ($self, $days) = (@_, 33);
+	$self->raw_clean($days);
+}
+
 1;
