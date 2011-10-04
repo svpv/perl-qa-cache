@@ -1,3 +1,4 @@
+#include <assert.h>
 #define PERL_NO_GET_CONTEXT
 #include "EXTERN.h"
 #include "perl.h"
@@ -47,6 +48,7 @@ raw_get(cache, key)
 	if (vsize == 0)
 	    XSRETURN_NO;
 	RETVAL = newSV(0);
+	assert(((char *) vdata)[vsize] == '\0');
 	sv_usepvn_flags(RETVAL, vdata, vsize, SV_HAS_TRAILING_NUL);
     OUTPUT:
 	RETVAL
