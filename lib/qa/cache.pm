@@ -6,7 +6,7 @@ our $VERSION = '0.11';
 require XSLoader;
 XSLoader::load(__PACKAGE__, $VERSION);
 
-our $topdir = "$ENV{HOME}/.qa-cache";
+our $topdir = $ENV{PERL_QA_CACHE_DIR} || "$ENV{HOME}/.qa-cache";
 
 my %blessed;
 
