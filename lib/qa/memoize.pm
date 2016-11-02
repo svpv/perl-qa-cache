@@ -1,7 +1,7 @@
 package qa::memoize;
 
 use strict;
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 our $NOCACHE ||= $ENV{PERL_QA_NOCACHE};
 
@@ -16,9 +16,12 @@ use constant {
 	BSM => 1,
 };
 
-sub basename ($) {
-	$_[0] =~ m#(?>.*/)(.*[^.].*)#s or
-	$_[0] =~ m#(?:.*/)?([^/]*[^/.][^/]*)/*\z#s or
+sub basename ($;$) {
+	local $_ = shift;
+	my $ext = shift;
+	s/\Q$ext\E\z// if $ext ne "";
+	m#(?>.*/)(.*[^.].*)#s or
+	m#(?:.*/)?([^/]*[^/.][^/]*)/*\z#s or
 		die "$_[0]: no valid basename";
 	return $1;
 }
@@ -27,6 +30,7 @@ sub memoize_st1_ ($$) {
 	return if $NOCACHE;
 	my $id  = shift;
 	my $how = shift;
+	my $ext = shift;
 	my $pkg = caller;
 	my $sym = $pkg . '::' . $id;
 	no strict 'refs';
@@ -43,7 +47,7 @@ sub memoize_st1_ ($$) {
 		my @st0 = stat($f) or die "$id: $f: $!";
 		my $ism0 = pack "LLL", @st0[st_ino,st_size,st_mtime];
 		my $k = ($how == ISM) ? $ism0 :
-			pack "Z*LL", basename($f), @st0[st_size,st_mtime];
+			pack "Z*LL", basename($f, $ext), @st0[st_size,st_mtime];
 		my $v = $cache->FETCH($k);
 		return $v if defined $v;
 		$v = $code->($f);
@@ -62,8 +66,8 @@ sub memoize_ism ($) {
 }
 
 # memoize a function which takes single file argument by (basename,size,mtime)
-sub memoize_bsm ($) {
-	push @_, BSM;
+sub memoize_bsm ($;$) {
+	splice @_, 1, 0, BSM;
 	goto &memoize_st1_;
 }
 
