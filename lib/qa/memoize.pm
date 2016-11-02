@@ -3,7 +3,7 @@ package qa::memoize;
 use strict;
 our $VERSION = '0.04';
 
-our $NOCACHE ||= $ENV{QA_NOCACHE};
+our $NOCACHE ||= $ENV{PERL_QA_NOCACHE};
 
 use constant {
 	st_ino => 1,
