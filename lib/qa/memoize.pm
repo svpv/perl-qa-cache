@@ -41,14 +41,14 @@ sub memoize_st1_ ($$) {
 		};
 		my $f = shift;
 		my @st0 = stat($f) or die "$id: $f: $!";
-		my $ism0 = join " " => @st0[st_ino,st_size,st_mtime];
+		my $ism0 = pack "LLL", @st0[st_ino,st_size,st_mtime];
 		my $k = ($how == ISM) ? $ism0 :
-			join " " => basename($f), @st0[st_size,st_mtime];
+			pack "Z*LL", basename($f), @st0[st_size,st_mtime];
 		my $v = $cache->FETCH($k);
 		return $v if defined $v;
 		$v = $code->($f);
 		my @st1 = stat($f) or die "$id: $f: $!";
-		my $ism1 = join " " => @st1[st_ino,st_size,st_mtime];
+		my $ism1 = pack "LLL", @st1[st_ino,st_size,st_mtime];
 		die "$id: $f: file has changed" unless $ism0 eq $ism1;
 		$cache->STORE($k, $v) if defined $v;
 		return $v;
